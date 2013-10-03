@@ -12,7 +12,6 @@ describe User do
 
   describe "email" do
     context "email is required" do
-      let!(:email){ '' }
 
       it "should be invalid" do
         subject.should_not be_valid
