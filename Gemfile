@@ -10,6 +10,7 @@ gem 'pg'
 gem 'activerecord-postgres-hstore'
 
 # Use SCSS for stylesheets
+gem "bcrypt-ruby", :require => "bcrypt"
 
 
 gem 'pry'
@@ -64,6 +65,8 @@ group :development, :test do
     gem 'better_errors'
     gem 'binding_of_caller'
     gem 'meta_request'
+    gem 'fabrication'
+    gem 'faker'
 end
 
 group :test do
@@ -84,3 +87,5 @@ end
 # gem 'debugger', group: [:development, :test]
 
 
+
+gem "mocha", group: :test

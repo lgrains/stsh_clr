@@ -1,7 +1,7 @@
 development:
   adapter: postgresql
   encoding: utf8
-  database: stash4_1_development
+  database: stsh_clr_development
   pool: 5
   timeout: 5000
   username: lrains
@@ -12,7 +12,7 @@ development:
 test: &test
   adapter: postgresql
   encoding: utf8
-  database: stash4_1_test
+  database: stsh_clr_test
   pool: 5
   timeout: 5000
   username: lrains
@@ -20,7 +20,7 @@ test: &test
 production:
   adapter: postgresql
   encoding: utf8
-  database: stash4_1_production
+  database: stsh_clr_production
   pool: 5
   timeout: 5000
   username: lrains

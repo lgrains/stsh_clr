@@ -145,10 +145,13 @@ GEM
       callsite
       rack-contrib
       railties
+    metaclass (0.0.1)
     method_source (0.8.2)
     mime-types (1.25)
     mini_portile (0.5.1)
     minitest (4.7.5)
+    mocha (0.14.0)
+      metaclass (~> 0.0.1)
     multi_json (1.8.0)
     multi_test (0.0.2)
     nifty-generators (0.4.6)
@@ -253,6 +256,7 @@ DEPENDENCIES
   activerecord-postgres-hstore
   autotest
   autotest-standalone
+  bcrypt-ruby
   better_errors
   binding_of_caller
   cancan
@@ -274,6 +278,7 @@ DEPENDENCIES
   launchy
   less-rails
   meta_request
+  mocha
   nifty-generators
   paperclip
   pg
