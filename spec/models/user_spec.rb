@@ -13,11 +13,12 @@ describe User do
   end
 
   it "should be valid" do
-    new_user.should be_valid
+    Fabricate(:user).should be_valid
   end
 
   it "should require email" do
-    new_user(:email => '').should have(1).error_on(:email)
+    # Fabricate(:user, email: '').should_not be_valid
+    new_user(:email => '').should have(2).error_on(:email)
   end
 
   it "should require password" do

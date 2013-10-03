@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   before_save :prepare_password
 
   validates_presence_of :email
-  validates_uniqueness_of :email, :allow_blank => true
+  validates_uniqueness_of :email
   validates_format_of :email, :with => /\A[-a-z0-9_+\.]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}\z/i
   validates_presence_of :password, :on => :create
   validates_confirmation_of :password
