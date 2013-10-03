@@ -1,13 +1,19 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
 describe User do
-  subject { Fabricate(:user) }
-  it { should be_valid }
+  let!(:existing_user){ Fabricate(:user) }
+  let!(:user){ Fabricate.build(:user, email: email, password: password, password_confirmation: password_confirmation)}
+
+  let(:email){''}
+  let(:password){''}
+  let(:password_confirmation){''}
+
+  subject { user }
+
 
   describe "email" do
     context "email is required" do
-      let!(:user){ Fabricate.build(:user, email: '')}
-      subject{ user }
+      let!(:email){ '' }
 
       it "should be invalid" do
         subject.should_not be_valid
@@ -15,8 +21,7 @@ describe User do
     end
 
     context "malformed email should not be valid" do
-      let!(:user){ Fabricate.build(:user, email: 'foo@bar@example.com')}
-      subject { user }
+      let!(:email){ 'foo@bar@example.com' }
 
       it "should be invalid" do
         subject.should_not be_valid
@@ -28,9 +33,7 @@ describe User do
     end
 
     context "email should be unique" do
-      let!(:user1){ Fabricate(:user, email: 'user@example.com') }
-      let!(:user2){ Fabricate.build(:user, email: 'user@example.com')}
-      subject{ user2 }
+      let!(:email){ existing_user.email }
 
       it "should be invalid" do
         subject.should_not be_valid
@@ -44,17 +47,14 @@ describe User do
 
   describe "password" do
     context "password is required" do
-      let!(:user){ Fabricate.build(:user, password: '', password_confirmation: '')}
-      subject{ user }
-
       it "should be invalid" do
         subject.should_not be_valid
       end
     end
 
     context "password is less than 6 characters" do
-      let!(:user){ Fabricate.build(:user, password: 'bad45', password_confirmation: 'bad45')}
-      subject{ user }
+      let!(:password){'12345'}
+      let!(:password_confirmation){ '12345' }
 
       it "should be invalid" do
         subject.should_not be_valid
@@ -66,17 +66,20 @@ describe User do
     end
 
     context "pasword and password_confirmation must match" do
-      let!(:user){ Fabricate.build(:user, password_confirmation: 'nonmatching')}
-      subject{ user }
+      let!(:password){ 'abc123' }
+      let!(:password_confirmation){ 'xyz987'}
 
       it "should be invalid" do
         subject.should_not be_valid
       end
     end
 
-    context "should generate password hash and salt on create" do
-      let!(:user){ Fabricate(:user) }
-      subject{ user }
+    context "should be valid when correct data given" do
+      subject{ existing_user }
+
+      it "should be valid" do
+        subject.should be_valid
+      end
 
       it "password_hash should not be nil" do
         subject.password_hash.should_not be_nil
@@ -89,18 +92,16 @@ describe User do
   end
 
   describe "authentication"  do
-    context "should authenticate by email" do
-      let!(:user){ Fabricate(:user, email: 'foo@bar.com', password: 'secret', password_confirmation: 'secret')}
-      subject{ user }
+    context "should authenticate by email and password" do
+      subject{ existing_user }
 
       it "should authenticate" do
-        subject.should == User.authenticate('foo@bar.com', 'secret')
+        subject.should == User.authenticate(subject.email, subject.password)
       end
     end
 
     context "should not authenticate with bad password" do
-      let!(:user){ Fabricate(:user, email: 'user@example.com', password: 'secret', password_confirmation: 'secret')}
-      subject{ user }
+      subject{ existing_user }
 
       it "should not authenticate with bad password" do
         User.authenticate(subject.email, 'badpassword').should be_nil
