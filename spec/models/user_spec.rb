@@ -4,49 +4,107 @@ describe User do
   subject { Fabricate(:user) }
   it { should be_valid }
 
-  #associations
+  describe "email" do
+    context "email is required" do
+      let!(:user){ Fabricate.build(:user, email: '')}
+      subject{ user }
 
-  #validations
-  it { should validate_presence_of :email }
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+    end
 
-  it "should require email" do
-    Fabricate.build(:user, email: '').should_not be_valid
+    context "malformed email should not be valid" do
+      let!(:user){ Fabricate.build(:user, email: 'foo@bar@example.com')}
+      subject { user }
+
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+
+      it "should have one error" do
+        subject.should have(1).error_on(:email)
+      end
+    end
+
+    context "email should be unique" do
+      let!(:user1){ Fabricate(:user, email: 'user@example.com') }
+      let!(:user2){ Fabricate.build(:user, email: 'user@example.com')}
+      subject{ user2 }
+
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+
+      it "should have one error" do
+        subject.should have(1).error_on(:email)
+      end
+    end
   end
 
-  it "should require password" do
-    Fabricate.build(:user, :password => '').should_not be_valid
+  describe "password" do
+    context "password is required" do
+      let!(:user){ Fabricate.build(:user, password: '', password_confirmation: '')}
+      subject{ user }
+
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+    end
+
+    context "password is less than 6 characters" do
+      let!(:user){ Fabricate.build(:user, password: 'bad45', password_confirmation: 'bad45')}
+      subject{ user }
+
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+
+      it "should have one error" do
+        subject.should have(1).error_on(:password)
+      end
+    end
+
+    context "pasword and password_confirmation must match" do
+      let!(:user){ Fabricate.build(:user, password_confirmation: 'nonmatching')}
+      subject{ user }
+
+      it "should be invalid" do
+        subject.should_not be_valid
+      end
+    end
+
+    context "should generate password hash and salt on create" do
+      let!(:user){ Fabricate(:user) }
+      subject{ user }
+
+      it "password_hash should not be nil" do
+        subject.password_hash.should_not be_nil
+      end
+
+      it "password_salt should not be nil" do
+        subject.password_salt.should_not be_nil
+      end
+    end
   end
 
-  it "should require well formed email" do
-    Fabricate.build(:user, :email => 'foo@bar@example.com').should have(1).error_on(:email)
-  end
+  describe "authentication"  do
+    context "should authenticate by email" do
+      let!(:user){ Fabricate(:user, email: 'foo@bar.com', password: 'secret', password_confirmation: 'secret')}
+      subject{ user }
 
-  it "should validate uniqueness of email" do
-    Fabricate(:user, :email => 'bar_s@example.com')
-    Fabricate.build(:user, :email => 'bar_s@example.com').should_not be_valid
-  end
+      it "should authenticate" do
+        subject.should == User.authenticate('foo@bar.com', 'secret')
+      end
+    end
 
-  it "should validate password is longer than 3 characters" do
-    Fabricate.build(:user, password: 'bad', password_confirmation: 'bad').should_not be_valid
-  end
+    context "should not authenticate with bad password" do
+      let!(:user){ Fabricate(:user, email: 'user@example.com', password: 'secret', password_confirmation: 'secret')}
+      subject{ user }
 
-  it "should require matching password confirmation" do
-    Fabricate.build(:user, password_confirmation: 'nonmatching').should_not be_valid
-  end
-
-  it "should generate password hash and salt on create" do
-    user = Fabricate(:user)
-    user.password_hash.should_not be_nil
-    user.password_salt.should_not be_nil
-  end
-
-  it "should authenticate by email" do
-    user = Fabricate(:user, email: 'foo@bar.com', password: 'secret', password_confirmation: 'secret')
-    User.authenticate('foo@bar.com', 'secret').should == user
-  end
-
-  it "should not authenticate bad password" do
-    Fabricate(:user, password: 'secret', password_confirmation: 'secret')
-    User.authenticate('foobar', 'badpassword').should be_nil
+      it "should not authenticate with bad password" do
+        User.authenticate(subject.email, 'badpassword').should be_nil
+      end
+    end
   end
 end
